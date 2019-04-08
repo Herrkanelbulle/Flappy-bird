@@ -12,8 +12,9 @@ public class Main {
 		frame.setPreferredSize(new Dimension(panel.WIDTH, panel.HEIGHT));
 		frame.setResizable(false);
 		frame.pack();
-		frame.setLocationRelativeTo(null); 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//dab
 	}
 
 	public static void main(final String[] args) {
