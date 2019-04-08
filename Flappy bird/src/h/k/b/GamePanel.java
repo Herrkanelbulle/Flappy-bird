@@ -171,7 +171,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	}
 
 	@Override
-	public void keyTyped(final KeyEvent e) {
+	public void keyTyped(final KeyEvent e) { 
 	}
 
 	private void addPipe(final int x) {

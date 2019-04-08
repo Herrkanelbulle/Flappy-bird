@@ -13,7 +13,7 @@ public class Main {
 		frame.setResizable(false);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 	}
 
 	public static void main(final String[] args) {
