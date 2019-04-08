@@ -21,15 +21,19 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	private int score;
 	private final Random random;
 
-	private boolean running;
 	private final Bird bird;
 	private final ArrayList<Pipe> pipes;
+
+	private boolean running;
 	private boolean started;
+
 	private boolean jumping;
 	private boolean canJump;
 	private int jumpStart;
+
 	public final int WIDTH = 500;
 	public final int HEIGHT = 500;
+
 	private final long fps = 60L;
 	private final int hop = 90;
 	private final int speed = 2;
@@ -81,8 +85,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 			return;
 		}
 		bird.draw(g);
-		pipes.stream().filter(p -> p.getType() != Pipe.PIPETYPE.MIDDLE).forEach(p -> p.draw(g));
-		final String text = "Score: " + score;
+		pipes.stream().filter(p -> p.getType() != PIPETYPE.MIDDLE).forEach(p -> p.draw(g));
+		String text = "Score: " + score;
 		g.setColor(Color.WHITE);
 		g.drawString(text, HEIGHT / 2 - g.getFontMetrics().stringWidth(text) / 2, 30);
 	}
@@ -92,15 +96,15 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 			bird.setAlive(false);
 		}
 		pipes.removeIf(p -> p.getX() < -p.getWidth());
-		for (final Pipe p2 : pipes) {
-			if (bird.getBound().intersects(p2.getBound()) && !p2.getType().equals(PIPETYPE.MIDDLE)) {
+		for (Pipe p : pipes) {
+			if (bird.getBound().intersects(p.getBound()) && !p.getType().equals(PIPETYPE.MIDDLE)) {
 				bird.setAlive(false);
 			}
-			if (bird.getX() == p2.getX() + p2.getWidth() && p2.getType().equals(PIPETYPE.MIDDLE)) {
+			if (bird.getX() == p.getX() + p.getWidth() && p.getType().equals(PIPETYPE.MIDDLE)) {
 				score++;
 			}
 			if (bird.isAlive()) {
-				p2.setX(p2.getX() - speed);
+				p.setX(p.getX() - speed);
 			}
 		}
 		if (bird.isAlive()) {
@@ -123,7 +127,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
-		final Graphics2D g2d = (Graphics2D) g;
+		Graphics2D g2d = (Graphics2D) g;
 		g2d.setColor(Color.BLACK);
 		g2d.fillRect(0, 0, WIDTH, HEIGHT);
 		render(g2d);
@@ -132,7 +136,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	@Override
 	public void keyPressed(final KeyEvent e) {
-		if (e.getKeyCode() == e.VK_SPACE) {
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			if (!started) {
 				started = true;
 			}
@@ -141,7 +145,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 				jumpStart = bird.getY();
 			}
 			canJump = false;
-		} else if (e.getKeyCode() == e.VK_ESCAPE) {
+		} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
 		}
 	}
@@ -161,7 +165,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	@Override
 	public void keyReleased(final KeyEvent e) {
-		if (e.getKeyCode() == e.VK_SPACE) {
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			canJump = true;
 		}
 	}

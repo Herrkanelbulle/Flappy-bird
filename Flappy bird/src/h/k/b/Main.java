@@ -9,15 +9,11 @@ public class Main {
 		final GamePanel panel = new GamePanel();
 		frame.setContentPane(panel);
 		frame.setVisible(true);
-		final JFrame frame2 = frame;
-		panel.getClass();
-		final int n = 500;
-		panel.getClass();
-		frame2.setPreferredSize(new Dimension(n, 500));
+		frame.setPreferredSize(new Dimension(panel.WIDTH, panel.HEIGHT));
 		frame.setResizable(false);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(3);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	public static void main(final String[] args) {
