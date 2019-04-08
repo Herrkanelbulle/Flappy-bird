@@ -18,29 +18,61 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	private static final long serialVersionUID = 1L;
 
+	// The current score
 	private int score;
+
+	// Random generator
 	private final Random random;
 
+	// Bird entity
 	private final Bird bird;
+
+	// All active pipes in one list
 	private final ArrayList<Pipe> pipes;
 
+	// Returns true if the application is running
 	private boolean running;
+
+	// Returns true if the game has started
 	private boolean started;
 
+	// Returns true if the bird is currently jumping
 	private boolean jumping;
+
+	// Returns true if the bird can jump under current circumstances.
 	private boolean canJump;
+
+	// Y-coordinate of bird when jump started
 	private int jumpStart;
 
+	// Window width
 	public final int WIDTH = 500;
+
+	// Window height
 	public final int HEIGHT = 500;
 
-	private final long fps = 60L;
+	// Ticks per second
+	private final long fps = 60;
+
+	// Jump height
 	private final int hop = 90;
+
+	// horizontal speed
 	private final int speed = 2;
+
+	// Vertical speed
 	private final int fallSpeed = 4;
+
+	// Gap-size in-between two pipes
 	private final int pipeGap = 150;
+
+	// Gap between two pipes
 	private final int gap = 200;
+
+	// Maximum amount of active pipes
 	private final int maxPipes = 9;
+
+	// Width of each and every pipe
 	private final int pipeWidth = 40;
 
 	public GamePanel() {
@@ -171,7 +203,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	}
 
 	@Override
-	public void keyTyped(final KeyEvent e) { 
+	public void keyTyped(final KeyEvent e) {
 	}
 
 	private void addPipe(final int x) {
