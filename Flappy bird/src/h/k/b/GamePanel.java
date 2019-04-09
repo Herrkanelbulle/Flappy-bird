@@ -147,7 +147,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		for (Pipe p : pipes) {
 			// Kill the bird if it hits an obscure pipe
 			if (bird.getBound().intersects(p.getBound()) && !p.getType().equals(PIPETYPE.MIDDLE)) {
-				bird.setAlive(false);
+				// bird.setAlive(false);
 			}
 
 			// Update score
@@ -178,6 +178,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		if (pipes.size() < maxPipes * 3) {
 			addPipe((maxPipes * gap) - 40);
 		}
+
 		repaint();
 	}
 
@@ -196,6 +197,22 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		g2d.dispose();
 	}
 
+	private void jump() {
+		if (!bird.isAlive()) {
+			// Reset map and re-spawn the bird
+			pipes.clear();
+			addPipes();
+			bird.setY(HEIGHT / 2 - bird.getHeight() / 2);
+			bird.setAlive(true);
+			score = 0;
+			canJump = true;
+		}
+		if (bird.getY() > hop && (canJump || bird.getY() > jumpStart)) {
+			// Set jumping status to true
+			jumping = true;
+		}
+	}
+
 	@Override
 	public void keyPressed(final KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -206,28 +223,18 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 			if (!jumping || !bird.isAlive()) {
 				// Jump
 				jump();
+
+			}
+			// Set the location of the jump-start
+			if (canJump) {
 				jumpStart = bird.getY();
 			}
+
 			// Prevent the bird from jumping multiple times at once
 			canJump = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			// Exit on escape
 			System.exit(0);
-		}
-	}
-
-	private void jump() {
-		if (!bird.isAlive()) {
-			// Reset map and re-spawn the bird
-			pipes.clear();
-			addPipes();
-			bird.setY(HEIGHT / 2 - bird.getHeight() / 2);
-			bird.setAlive(true);
-			score = 0;
-		}
-		if (bird.getY() > hop && canJump) {
-			// Set jumping status to true
-			jumping = true;
 		}
 	}
 
