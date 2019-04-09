@@ -147,7 +147,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		for (Pipe p : pipes) {
 			// Kill the bird if it hits an obscure pipe
 			if (bird.getBound().intersects(p.getBound()) && !p.getType().equals(PIPETYPE.MIDDLE)) {
-				// bird.setAlive(false);
+				bird.setAlive(false);
 			}
 
 			// Update score
