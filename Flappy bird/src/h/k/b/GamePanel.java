@@ -1,18 +1,24 @@
 package h.k.b;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import h.k.b.entity.Bird;
 import h.k.b.entity.Pipe;
 import h.k.b.entity.Pipe.PIPETYPE;
+import h.k.b.management.Console;
+import h.k.b.management.Settings;
 
 public class GamePanel extends JPanel implements Runnable, KeyListener {
 
@@ -51,29 +57,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	// Window height
 	public final int HEIGHT = 500;
 
-	// Ticks per second
-	private final long fps = 60;
+	// Returns true if the game has been paused
+	private boolean paused;
 
-	// Jump height
-	private final int hop = 90;
-
-	// horizontal speed
-	private final int speed = 2;
-
-	// Vertical speed
-	private final int fallSpeed = 4;
-
-	// Gap-size in-between two pipes
-	private final int pipeGap = 150;
-
-	// Gap between two pipes
-	private final int gap = 200;
-
-	// Maximum amount of active pipes
-	private final int maxPipes = 9;
-
-	// Width of each and every pipe
-	private final int pipeWidth = 40;
+	// Console
+	private Console console;
+	private final JFrame consoleFrame;
 
 	public GamePanel() {
 		// Initialize variables
@@ -83,7 +72,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		bird.setY(HEIGHT / 2 - bird.getHeight());
 		random = new Random();
 		pipes = new ArrayList<Pipe>();
-
+		console = new Console();
+		consoleFrame = new JFrame("Console");
 		// Request keyboard focus and add the key listener
 		setFocusable(true);
 		requestFocus();
@@ -109,20 +99,22 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		while (running) {
 			// Update game loop on every tick
 			try {
-				Thread.sleep(1000 / fps);
+				Thread.sleep(1000 / Settings.fps.getValue());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
+			// Check if the game has started and the console is not currently open.
 			if (started) {
-				update();
+				if (!paused)
+					update();
+				repaint();
 			}
 		}
 	}
 
 	private void render(final Graphics2D g) {
-		if (bird == null) {
-			return;
-		}
+
 		// Render the bird
 		bird.draw(g);
 
@@ -133,6 +125,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		String text = "Score: " + score;
 		g.setColor(Color.WHITE);
 		g.drawString(text, HEIGHT / 2 - g.getFontMetrics().stringWidth(text) / 2, 30);
+
+		// Write the "PAUSED" message
+		if (paused) {
+			String pause = "PAUSED";
+			int x = WIDTH / 2 - g.getFontMetrics().stringWidth(pause) / 2;
+			int y = HEIGHT / 2;
+			g.drawString("PAUSED", x, y);
+		}
 	}
 
 	private void update() {
@@ -157,29 +157,28 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 			// Handle horizontal movement
 			if (bird.isAlive()) {
-				p.setX(p.getX() - speed);
+				p.setX(p.getX() - Settings.speed.getValue());
 			}
 		}
 
 		if (bird.isAlive()) {
 			// Handle vertical movements
 			if (jumping) {
-				if (bird.getY() > jumpStart - hop) {
+				if (bird.getY() > jumpStart - Settings.hop.getValue()) {
 					bird.setY(bird.getY() - 10);
 				} else {
 					jumping = false;
 				}
 			} else {
-				bird.setY(bird.getY() + fallSpeed);
+				bird.setY(bird.getY() + Settings.fallSpeed.getValue());
 			}
 		}
 
 		// Add new pipes
-		if (pipes.size() < maxPipes * 3) {
-			addPipe((maxPipes * gap) - 40);
+		if (pipes.size() < Settings.maxPipes.getValue() * 3) {
+			addPipe((Settings.maxPipes.getValue() * Settings.gap.getValue()) - Settings.pipeWidth.getValue());
 		}
 
-		repaint();
 	}
 
 	@Override
@@ -207,7 +206,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 			score = 0;
 			canJump = true;
 		}
-		if (bird.getY() > hop && (canJump || bird.getY() > jumpStart)) {
+		if (bird.getY() > Settings.hop.getValue() && (canJump || bird.getY() > jumpStart)) {
 			// Set jumping status to true
 			jumping = true;
 		}
@@ -215,7 +214,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	@Override
 	public void keyPressed(final KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+		if (e.getKeyCode() == KeyEvent.VK_SPACE && !paused) {
 			if (!started) {
 				// Start the game
 				started = true;
@@ -233,8 +232,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 			// Prevent the bird from jumping multiple times at once
 			canJump = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			// Exit on escape
-			System.exit(0);
+			// Toggle pause
+			paused = !paused;
+		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			paused = true;
+			launchConsole();
 		}
 	}
 
@@ -252,12 +254,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	private void addPipe(final int x) {
 		final int minHeight = 50;
-		final int rHeight = minHeight + random.nextInt(gap);
+		final int rHeight = minHeight + random.nextInt(Settings.gap.getValue());
+		final int width = Settings.pipeWidth.getValue();
+		final int gap = Settings.pipeGap.getValue();
 
 		// Pipes
-		final Pipe up = new Pipe(x, 0, pipeWidth, rHeight, PIPETYPE.UPPER);
-		final Pipe middle = new Pipe(x, rHeight, pipeWidth, pipeGap, PIPETYPE.MIDDLE);
-		final Pipe down = new Pipe(x, rHeight + pipeGap, pipeWidth, (400 - minHeight) - rHeight, PIPETYPE.LOWER);
+		final Pipe up = new Pipe(x, 0, width, rHeight, PIPETYPE.UPPER);
+		final Pipe middle = new Pipe(x, rHeight, width, gap, PIPETYPE.MIDDLE);
+		final Pipe down = new Pipe(x, rHeight + gap, width, (400 - minHeight) - rHeight, PIPETYPE.LOWER);
 		final Color randomColor = new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255));
 
 		// Give the pipes their color
@@ -274,9 +278,26 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	private void addPipes() {
 		// Add the starting pipes.
 		int x = 0;
-		for (int i = 0; i < maxPipes; ++i) {
-			addPipe(200 + x * gap);
+		for (int i = 0; i < Settings.maxPipes.getValue(); ++i) {
+			addPipe(200 + x * Settings.gap.getValue());
 			++x;
 		}
 	}
+
+	private void launchConsole() {
+		console.setLayout(null);
+		consoleFrame.setContentPane(console);
+		consoleFrame.setVisible(true);
+		consoleFrame.setPreferredSize(new Dimension(console.WIDTH, console.HEIGHT));
+		consoleFrame.setResizable(false);
+		consoleFrame.pack();
+		consoleFrame.setLocationRelativeTo(null);
+		consoleFrame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				// TODO: Reset
+			}
+		});
+	}
+
 }
