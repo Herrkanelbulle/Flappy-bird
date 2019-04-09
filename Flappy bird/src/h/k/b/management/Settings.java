@@ -24,7 +24,7 @@ public class Settings {
 
 	// Maximum amount of active pipes
 	public static NumberOption<Integer> maxPipes = new NumberOption<Integer>("Maximum amount of active pipes", 9, 1, 20,
-			1);;;
+			1);
 
 	// Width of each and every pipe
 	public static NumberOption<Integer> pipeWidth = new NumberOption<Integer>("Pipe width", 40, 10, 60, 5);

@@ -6,7 +6,8 @@ public class BooleanOption extends Option<Boolean> {
 
 	public BooleanOption(Boolean value, String name) {
 		super(value, name);
-		// TODO Auto-generated constructor stub
 	}
+	
+	//not done
 
 }
