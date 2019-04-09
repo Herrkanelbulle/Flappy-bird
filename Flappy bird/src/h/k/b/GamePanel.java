@@ -137,8 +137,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	private void update() {
 		// Kill the bird if it hits the ground
-		if (bird.getY() + bird.getHeight() > HEIGHT - bird.getHeight()) {
+		if (bird.getY() + bird.getHeight() > HEIGHT - bird.getHeight() && bird.isAlive()) {
 			bird.setAlive(false);
+			console.write("Died!");
 		}
 
 		// Remove all pipes that are out of render
@@ -146,7 +147,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 		for (Pipe p : pipes) {
 			// Kill the bird if it hits an obscure pipe
-			if (bird.getBound().intersects(p.getBound()) && !p.getType().equals(PIPETYPE.MIDDLE)) {
+			if (bird.getBound().intersects(p.getBound()) && !p.getType().equals(PIPETYPE.MIDDLE) && bird.isAlive()) {
+				console.write("Died!");
 				bird.setAlive(false);
 			}
 
@@ -205,6 +207,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 			bird.setAlive(true);
 			score = 0;
 			canJump = true;
+			console.write("Game reset!");
 		}
 		if (bird.getY() > Settings.hop.getValue() && (canJump || bird.getY() > jumpStart)) {
 			// Set jumping status to true
@@ -216,13 +219,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 	public void keyPressed(final KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE && !paused) {
 			if (!started) {
+				console.write("Started!");
 				// Start the game
 				started = true;
 			}
 			if (!jumping || !bird.isAlive()) {
 				// Jump
 				jump();
-
 			}
 			// Set the location of the jump-start
 			if (canJump) {
@@ -234,8 +237,10 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 		} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			// Toggle pause
 			paused = !paused;
+			console.write(paused ? "Paused!" : "Unpaused!");
 		} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			paused = true;
+			console.write("Launched the console.");
+			paused = started;
 			launchConsole();
 		}
 	}
